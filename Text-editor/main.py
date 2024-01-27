@@ -15,20 +15,11 @@ class FastTitle(ctk.CTkLabel):
 
 class CustomText(chlorophyll.CodeView):
     def __init__(self, indent_after_colon=True, **kwargs):
-        custom_color_scheme = {
-            'background': 'black',
-            'foreground': 'white',
-            'keyword': 'cyan',
-            'identifier': 'white',
-            'string': 'orange',
-            'comment': 'green',
-            'number': 'yellow',
-        }
 
 
 
         color = "white" if darkdetect.isLight() else "black"
-        super().__init__(**kwargs, color_scheme=custom_color_scheme)  # Remove the explicit 'bg' parameter here
+        super().__init__(**kwargs)  # Remove the explicit 'bg' parameter here
         self.bind("<KeyRelease>", self.do)
         self.leading_whitespace = 0
 
@@ -66,27 +57,27 @@ class TextEditor:
         self.window.bind('<Key>', on_key)
         self.window.bind('<KeyRelease>', on_key_release)
 
-        menu = CTkMenuBar.CTkMenuBar(self.window, bg_color=["white", "black"])
-        cascade = menu.add_cascade(text="File")
-        dropdown1 = CTkMenuBar.CustomDropdownMenu(cascade)
-        dropdown1.add_option(option="Save", command=self.save_file)
-        dropdown1.add_option(option="Load", command=self.load_file)
-        dropdown1.add_option(option="Find and replace", command=self.show_find_replace_popup)
-        self.lang = ctk.CTkComboBox(dropdown1, values=("Python", ""), command=self.changelang)
+        self.menu = CTkMenuBar.CTkMenuBar(self.window, bg_color=["white", "black"])
+        self.cascade = self.menu.add_cascade(text="File")
+        self.dropdown1 = CTkMenuBar.CustomDropdownMenu(self.cascade)
+        self.dropdown1.add_option(option="Save", command=self.save_file)
+        self.dropdown1.add_option(option="Load", command=self.load_file)
+        self.dropdown1.add_option(option="Find and replace", command=self.show_find_replace_popup)
+        self.lang = ctk.CTkComboBox(self.dropdown1, values=("Python", ""), command=self.changelang)
         self.lang.pack(pady=10)
 
-        cascade2 = menu.add_cascade(text="Other")
-        dropdown2 = CTkMenuBar.CustomDropdownMenu(cascade2)
-        dropdown2.add_option(option="Go to my GitHub Webpage", command=lambda: webbrowser.open_new_tab("www.github.com/domm-hub"))
-        dropdown2.add_option("Exit", command=lambda: sys.exit(0))
-        dropdown2.add_option("Settings", command=self.settings)
+        self.cascade2 = self.menu.add_cascade(text="Other")
+        self.dropdown2 = CTkMenuBar.CustomDropdownMenu(self.cascade2)
+        self.dropdown2.add_option(option="Go to my GitHub Webpage", command=lambda: webbrowser.open_new_tab("www.github.com/domm-hub"))
+        self.dropdown2.add_option("Exit", command=lambda: sys.exit(0))
+        self.dropdown2.add_option("Settings", command=self.settings)
 
         self.current_file = None
 
         text_frame = ctk.CTkFrame(self.window)
         text_frame.pack(fill='both', expand=True)
  
-        self.text = CustomText(master=text_frame, width=800, height=575, indent_after_colon=True, bg="white" if darkdetect.theme() == "light" else "black")
+        self.text = CustomText(master=text_frame, width=800, height=575, indent_after_colon=True)
         self.text.pack(fill='both', expand=True)
 
         self.find_replace_popup = ctk.CTkToplevel(self.window)
@@ -170,8 +161,14 @@ class TextEditor:
                 font = ctk.CTkFont("Calibri", size=int(combo.get()))
                 self.text.configure(font=font)
                 try:
-                    settings_window._set_appearance_mode(combo2.get())
-                    self.window._set_appearance_mode(combo2.get())
+                    # Update appearance mode for both the main window and navigation bar
+                    selected_mode = combo2.get()
+                    settings_window._set_appearance_mode(selected_mode)
+                    self.window._set_appearance_mode(selected_mode)
+                    self.menu._set_appearance_mode(selected_mode)
+                    self.cascade._set_appearance_mode(selected_mode)
+                    self.cascade2._set_appearance_mode(selected_mode)
+                      # Assuming 'menu' is your navigation bar
                 except Exception as e:
                     messagebox.showerror("Error: ", str(e))
                 settings_window.destroy()
@@ -183,6 +180,7 @@ class TextEditor:
         done_btn.pack(pady=10)
 
         settings_window.mainloop()
+
 
     def load_file(self):
         filename = filedialog.askopenfilename()
@@ -228,6 +226,3 @@ class TextEditor:
 if __name__ == "__main__":
     editor = TextEditor()
     editor.window.mainloop()
-
-
-'''TypeError: chlorophyll.codeview.CodeView.__init__() got multiple values for keyword argument 'bg'''
