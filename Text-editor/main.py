@@ -6,6 +6,7 @@ import CTkMenuBar
 import chlorophyll
 import pygments.lexers
 import webbrowser
+import darkdetect
 
 class FastTitle(ctk.CTkLabel):
     def __init__(self, master, font_size=20, **kwargs):
@@ -52,7 +53,7 @@ class TextEditor:
         self.window.bind('<Key>', on_key)
         self.window.bind('<KeyRelease>', on_key_release)
 
-        menu = CTkMenuBar.CTkMenuBar(self.window)
+        menu = CTkMenuBar.CTkMenuBar(self.window, bg_color=["white", "black"])
         cascade = menu.add_cascade(text="File")
         dropdown1 = CTkMenuBar.CustomDropdownMenu(cascade)
         dropdown1.add_option(option="Save", command=self.save_file)
@@ -72,7 +73,7 @@ class TextEditor:
         text_frame = ctk.CTkFrame(self.window)
         text_frame.pack(fill='both', expand=True)
  
-        self.text = CustomText(master=text_frame, width=800, height=575, indent_after_colon=True)
+        self.text = CustomText(master=text_frame, width=800, height=575, indent_after_colon=True, bg="white" if darkdetect.theme() == "light" else "black")
         self.text.pack(fill='both', expand=True)
 
         self.find_replace_popup = ctk.CTkToplevel(self.window)
@@ -139,6 +140,15 @@ class TextEditor:
         combo = ctk.CTkComboBox(frame, values=['8', '9', '10', '11', '12', '13', '14', '16', '18', '20', '22', '24', '26', '28', '30', '32', '34', '36', '40', '48', '56', '64', '72'])
         combo.pack()
 
+        title = FastTitle(frame, text="Appearence mode:")
+        title.pack(pady=10)
+
+        combo2 = ctk.CTkComboBox(frame, values=["Light", "Dark", f"System default ({darkdetect.theme()})"])
+        combo2.pack()
+
+
+        
+
         def setvars():
             try:
                 if int(combo.get()) > 72:
@@ -149,6 +159,11 @@ class TextEditor:
 
                 font=ctk.CTkFont("Calibri", size=int(combo.get()))
                 self.text.configure(font=font)
+                try:
+                    settings_window._set_appearance_mode(combo2.get())
+                    self.window._set_appearance_mode(combo2.get())
+                except Exception as e:
+                    messagebox.showerror("Error: ", str(e))
                 settings_window.destroy()
 
             except Exception as e:
@@ -188,7 +203,7 @@ class TextEditor:
 
         # Implement find and replace functionality
         content = self.text.get("1.0", ctk.END)
-        new_content = content.replace(find_text, replace_text)
+        new_content = content.replace(find_text, replace_text.replace("\n", ""))
 
         # Update the text widget with the modified content
         self.text.delete("1.0", ctk.END)
