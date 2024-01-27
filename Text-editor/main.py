@@ -15,7 +15,20 @@ class FastTitle(ctk.CTkLabel):
 
 class CustomText(chlorophyll.CodeView):
     def __init__(self, indent_after_colon=True, **kwargs):
-        super().__init__(**kwargs)
+        custom_color_scheme = {
+            'background': 'black',
+            'foreground': 'white',
+            'keyword': 'cyan',
+            'identifier': 'white',
+            'string': 'orange',
+            'comment': 'green',
+            'number': 'yellow',
+        }
+
+
+
+        color = "white" if darkdetect.isLight() else "black"
+        super().__init__(**kwargs, color_scheme=custom_color_scheme)  # Remove the explicit 'bg' parameter here
         self.bind("<KeyRelease>", self.do)
         self.leading_whitespace = 0
 
@@ -140,24 +153,21 @@ class TextEditor:
         combo = ctk.CTkComboBox(frame, values=['8', '9', '10', '11', '12', '13', '14', '16', '18', '20', '22', '24', '26', '28', '30', '32', '34', '36', '40', '48', '56', '64', '72'])
         combo.pack()
 
-        title = FastTitle(frame, text="Appearence mode:")
+        title = FastTitle(frame, text="Appearance mode:")
         title.pack(pady=10)
 
         combo2 = ctk.CTkComboBox(frame, values=["Light", "Dark", f"System default ({darkdetect.theme()})"])
         combo2.pack()
 
-
-        
-
         def setvars():
             try:
                 if int(combo.get()) > 72:
                     messagebox.showinfo("Error", "The number: " + combo.get() + " is too big so we lowered it to 48")
-                    font=ctk.CTkFont("Calibri", size=48)
+                    font = ctk.CTkFont("Calibri", size=48)
                     self.text.configure(font=font)
                     return 0
 
-                font=ctk.CTkFont("Calibri", size=int(combo.get()))
+                font = ctk.CTkFont("Calibri", size=int(combo.get()))
                 self.text.configure(font=font)
                 try:
                     settings_window._set_appearance_mode(combo2.get())
@@ -218,3 +228,6 @@ class TextEditor:
 if __name__ == "__main__":
     editor = TextEditor()
     editor.window.mainloop()
+
+
+'''TypeError: chlorophyll.codeview.CodeView.__init__() got multiple values for keyword argument 'bg'''
