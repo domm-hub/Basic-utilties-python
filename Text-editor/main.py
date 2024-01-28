@@ -8,6 +8,7 @@ import pygments.lexers
 import webbrowser
 import darkdetect
 from PIL import Image, ImageTk
+import time
 
 class FastTitle(ctk.CTkLabel):
     def __init__(self, master, font_size=20, **kwargs):
@@ -28,7 +29,7 @@ class CustomText(chlorophyll.CodeView):
 class TextEditor:
     def __init__(self):
         self.current_file = ""
-        self.__version__ = "2.0.3"
+        self.__version__ = "2.0.4"
         self.window = ctk.CTk()
         self.window.geometry('800x600')
         self.window.resizable(True, True)
@@ -184,7 +185,7 @@ class TextEditor:
         title = FastTitle(frame, text="Font Size:")
         title.pack(side="top")
 
-        combo = ctk.CTkComboBox(frame, values=['8', '9', '10', '11', '12', '13', '14', '16', '18', '20', '22', '24', '26', '28', '30', '32', '34', '36', '40', '48', '56', '64', '72'])
+        combo = ctk.CTkComboBox(frame, values=[str(self.font_size), '8', '9', '10', '11', '12', '13', '14', '16', '18', '20', '22', '24', '26', '28', '30', '32', '34', '36', '40', '48', '56', '64', '72'])
         combo.pack()
 
         title = FastTitle(frame, text="Appearance mode:")
@@ -202,6 +203,7 @@ class TextEditor:
                     return None
 
                 font = ctk.CTkFont("Calibri", size=int(combo.get()))
+                self.font_size = int(combo.get())
                 self.textt.configure(font=font)
                 try:
                     # Update appearance mode for both the main window and navigation bar
@@ -219,6 +221,7 @@ class TextEditor:
 
             except Exception as e:
                 messagebox.showerror("ERROR", f"The input {combo.get()} is faulty. Error: {str(e)}")
+                settings_window.destroy()
 
         done_btn = ctk.CTkButton(frame, text="Done!", command=setvars)
         done_btn.pack(pady=10)
@@ -278,6 +281,7 @@ class TextEditor:
         self.font_size += 1
         if self.font_size > 72:
             self.font_size = 72
+        time.sleep(0.03)
         self.font.configure(size=self.font_size)
         self.textt.configure(font=self.font)
 
@@ -285,6 +289,7 @@ class TextEditor:
         self.font_size -= 1
         if self.font_size < 8:
             self.font_size = 8
+        time.sleep(0.03)
         self.font.configure(size=self.font_size)
         self.textt.configure(font=self.font)
 
