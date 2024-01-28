@@ -7,6 +7,7 @@ import chlorophyll
 import pygments.lexers
 import webbrowser
 import darkdetect
+from PIL import Image, ImageTk
 
 class FastTitle(ctk.CTkLabel):
     def __init__(self, master, font_size=20, **kwargs):
@@ -27,12 +28,13 @@ class CustomText(chlorophyll.CodeView):
 class TextEditor:
     def __init__(self):
         self.current_file = ""
-        
+        self.__version__ = "2.0.3"
         self.window = ctk.CTk()
         self.window.geometry('800x600')
         self.window.resizable(True, True)
-        self.window.title('Text editor 2.0.2 ')
+        self.window.title(f'Text editor {self.__version__}')
         self.window.minsize(275, 275)
+
 
         def on_key(event):
             if event.keysym == 'Control_L' and not ctrl_pressed[0]:
@@ -126,6 +128,7 @@ class TextEditor:
         new_height = event.height - 25
         self.textt.configure(height=new_height, width=new_width)
 
+
     def commandlineinput(self):
         if len(sys.argv) > 1:
             # Assume the first argument (after the script name) is the filename
@@ -135,6 +138,8 @@ class TextEditor:
                     content = f.read()
                     self.textt.delete('1.0', 'end')
                     self.textt.insert('1.0', content)
+                    self.window.title(f"Text Editor {self.__version__} - {filename}")
+                    self.window.update()
                     self.current_file = filename
             except FileNotFoundError:
                 print(f"Error: File not found: {filename}")
@@ -150,9 +155,12 @@ class TextEditor:
 
     def save_file(self, do=None):
         if self.current_file:
-            with open(self.current_file, 'w') as f:
-                f.write(self.textt.get('1.0', 'end-1c'))
-            messagebox.showinfo('Success!', 'File saved successfully')
+            try:
+                with open(self.current_file, 'w') as f:
+                    f.write(self.textt.get('1.0', 'end-1c'))
+                messagebox.showinfo('Success!', 'File saved successfully')
+            except PermissionError:
+                messagebox.showerror("Permission denied.", "Permission denied, you cannot edit the file: " + self.current_file)
         else:
             self.save_as_file()
 
@@ -225,6 +233,14 @@ class TextEditor:
                     content = f.read()
                     self.textt.delete('1.0', 'end')
                     self.textt.insert('1.0', content)
+                    self.window.title(f"Text Editor {self.__version__} - {filename}")
+                    self.window.update()
+                if filename.endswith(".py"):
+                    self.textt.configure(lexer=pygments.lexers.Python3Lexer)
+                else:
+                    self.textt.configure(lexer=pygments.lexers.TextLexer)
+
+                
                 self.current_file = filename
             except:
                 try:
@@ -274,4 +290,4 @@ class TextEditor:
 
 if __name__ == "__main__":
     editor = TextEditor()
-    editor.window.mainloop() 
+    editor.window.mainloop()
