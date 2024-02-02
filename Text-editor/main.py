@@ -32,7 +32,7 @@ def main():
         class TextEditor:
             def __init__(self):
                 self.current_file = ""
-                self.__version__ = "2.0.7"
+                self.__version__ = "2.1.0"
                 self.window = ctk.CTk()
                 self.window.geometry('800x600')
                 self.window.resizable(True, True)
@@ -71,11 +71,15 @@ def main():
                 self.menu = CTkMenuBar.CTkMenuBar(self.window, bg_color=["white", "black"])
                 self.cascade = self.menu.add_cascade(text="File")
                 self.dropdown1 = CTkMenuBar.CustomDropdownMenu(self.cascade)
+                self.dropdown1.add_option(option="Fetch Content From Website", command=self.fetch)
+                self.dropdown1.add_option(option="New window", command=main)
+                self.dropdown1.add_option(option="New File", command=self.new_file)
+                self.dropdown1.add_option(option="Run Code", command=self.execute_code)
                 self.dropdown1.add_option(option="Save", command=self.save_file)
                 self.dropdown1.add_option(option="Load", command=self.load_file)
-                self.dropdown1.add_option(option="New window", command=main)
-                self.dropdown1.add_option(option="Run Code", command=self.execute_code)
-                self.dropdown1.add_option(option="Fetch Content From Website", command=self.fetch)
+                
+                
+                
                 self.dropdown1.add_option(option="Find and replace", command=self.show_find_replace_popup)
                 self.lang = ctk.CTkComboBox(self.dropdown1, values=("Python", "Plain Text"), command=self.changelang)
                 self.lang.pack(pady=10)
@@ -177,7 +181,10 @@ def main():
                 except ModuleNotFoundError:
                     messagebox.showerror("Error", "Error The 'requests' module cannot be found.")
                 
-
+            def new_file(self):
+                self.current_file = None
+                self.window.title(f"Text Editor {self.__version__} - Untitled File.txt")
+                self.textt.delete("1.0", ctk.END)
             
             def commandlineinput(self):
                 if len(sys.argv) > 1:
@@ -361,4 +368,7 @@ def main():
         from tkinter import messagebox
         if messagebox.askyesnocancel("ERROR", "FATAL ERROR: " + str(e) + "Do you want to try again?"):
             main()
-main()
+try:
+    main()
+except Exception as e:
+    print(e)
